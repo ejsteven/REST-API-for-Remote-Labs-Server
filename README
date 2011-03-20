@@ -1,0 +1,20 @@
+----------------------------------------------------------------
+Project:  REST-API-for-Remote-Labs-Server
+Framework: Node.JS
+Copyright: 2011 Centre for Educational Innovation and Technology
+----------------------------------------------------------------
+
+Instructions
+------------
+
+1. Install Node.JS
+
+2. Install and setup MySQL
+
+3. Use database dump file (Database Construction) to create and populate tables
+
+4. In store-mysql.js must enter appropriate database access details
+
+5. Configure and create bindings for node-mysql-libmysqlclient module (https://github.com/Sannis/node-mysql-libmysqlclient). Take note of dependencies and please use the module included in the project as new version has remote some functions which this project depends on (i.e. Fetch).
+
+6. Run restserver.js script to start the server

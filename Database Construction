@@ -1,0 +1,122 @@
+CREATE table profile (
+user VARCHAR(20) PRIMARY KEY NOT NULL,
+pass VARCHAR(40) NOT NULL,
+first VARCHAR(100),
+last VARCHAR(100),
+uni VARCHAR(50),
+course VARCHAR(50),
+type VARCHAR(10) NOT NULL
+);
+INSERT INTO profile VALUES('omar','4a6db2314c199446c0e2d3e48e30295622c96639', 'Omar', 'Alkylaney', 'UQ', 'Master Of Computer Science','User');
+INSERT INTO profile VALUES('admin','d033e22ae348aeb5660fc2140aec35850c4da997', 'Steven', 'Chen', 'UQ', 'Master Of Software Engineering','Admin');
+
+
+
+
+CREATE table exp_api_desc (
+name VARCHAR(40) PRIMARY KEY NOT NULL,
+expAPI VARCHAR(1000) NOT NULL
+);
+INSERT INTO exp_api_desc  VALUES ('Voltage Divider','{"transport": "REST", "envelope": "URL", "target": "/exp/1/", "services": {"V0": {"transport": "GET", "target": "out0", "frequency": 2, "return": {"description": "Output 0", "title": "V0", "type": "Number", "minimum": 0, "maximum": 5, "minimumCanEqual": true, "maximumCanEqual": true, "units": "V"}}, "V1": {"transport": "GET", "target": "out1", "frequency": 2, "return": {"description": "Output 1", "title": "V1", "type": "Number", "minimum": 0, "maximum": 5, "minimumCanEqual": true, "maximumCanEqual": true, "units": "V"}}, "V3": {"transport": "GET", "target": "out2", "frequency": 2, "return": {"description": "Output 2", "title": "V2", "type": "Number", "minimum": 0, "maximum": 5, "minimumCanEqual": true, "maximumCanEqual": true, "units": "V"}}, "VSource": {"transport": "PUT", "target": "in0", "frequency": 2, "parameter": [{"description": "Input 0", "title": "VSource", "type": "Number", "minimum": 0, "maximum": 5, "minimumCanEqual": true, "maximumCanEqual": true, "units": "V"}]}}}');
+
+
+CREATE table lj_list (
+id INT PRIMARY KEY NOT NULL,
+ipAddr VARCHAR (15) NOT NULL,
+portNo INT NOT NULL,
+unipolarSlope0 VARCHAR (30),
+unipolarOffset0 VARCHAR (30),
+dacSlope0 VARCHAR (30),
+dacOffset0 VARCHAR (30),
+dacSlope1 VARCHAR (30),
+dacOffset1 VARCHAR (30)
+);
+INSERT INTO lj_list (id, ipAddr, portNo) VALUES (1, "130.102.70.47", 52360);
+INSERT INTO lj_list (id, ipAddr, portNo) VALUES (2, "130.102.70.48", 52360);
+
+
+
+
+CREATE table exp_list (
+expID INT PRIMARY KEY NOT NULL,
+expName VARCHAR (40) NOT NULL,
+expDesc VARCHAR (200),
+expType VARCHAR (20) NOT NULL,
+ljID INT NOT NULL,
+FOREIGN KEY (ljID) REFERENCES lj_list (id) ON DELETE CASCADE,
+FOREIGN KEY (expName) REFERENCES exp_api_desc (name) ON DELETE CASCADE
+);
+INSERT INTO exp_list VALUES (1, 'Test 1', 'Testing DAC0 to AIN0 of LabJack', 'Test', 1);
+INSERT INTO exp_list VALUES (2, 'Voltage Divider', 'Demonstating Voltage Divider Rule', 'Electric', 2);
+INSERT INTO exp_list VALUES (3, 'Remote Controlled Microsope', 'Microscope Controllable By Users Over Network', 'Mechanical', 3);
+
+
+
+
+CREATE table exp_done (
+expNo INT PRIMARY KEY NOT NULL,
+expID INT NOT NULL,
+expUser VARCHAR(200) NOT NULL,
+startTime VARCHAR(30),
+stopTime VARCHAR(30),
+FOREIGN KEY (expID) REFERENCES exp_list (expID) ON DELETE CASCADE,
+FOREIGN KEY (expUser) REFERENCES profile (user) ON DELETE CASCADE
+);
+
+
+
+
+CREATE table user_list (
+expID INT NOT NULL,
+expUser VARCHAR (200) NOT NULL,
+CONSTRAINT pk_expiduser PRIMARY KEY (expUser, expID),
+FOREIGN KEY (expID) REFERENCES exp_list (expID) ON DELETE CASCADE,
+FOREIGN KEY (expUser) REFERENCES profile (user) ON DELETE CASCADE
+);
+INSERT INTO user_list VALUES (1, 'admin');
+INSERT INTO user_list VALUES (2, 'admin');
+INSERT INTO user_list VALUES (1, 'omar');
+INSERT INTO user_list VALUES (2, 'omar');
+INSERT INTO user_list VALUES (3, 'omar');
+INSERT INTO user_list VALUES (3, 'admin');
+
+
+
+
+
+CREATE table exp_data (
+dataNo INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+time BIGINT NOT NULL,
+expNo INT NOT NULL,
+dataType VARCHAR(50) NOT NULL,
+dataVal VARCHAR(100),
+FOREIGN KEY (expNo) REFERENCES exp_done (expNo) ON DELETE CASCADE
+);
+
+
+
+
+CREATE table schema_list (
+schemaID INTEGER PRIMARY KEY NOT NULL,
+schemaName VARCHAR(40) NOT NULL
+);
+
+
+
+CREATE table exp_schema (
+expID INT NOT NULL,
+schemaID INT NOT NULL,
+CONSTRAINT pk_expschema PRIMARY KEY (expID, schemaID),
+FOREIGN KEY (expID) REFERENCES exp_list (expID) ON DELETE CASCADE,
+FOREIGN KEY (schemaID) REFERENCES schema_list (schemaID) ON DELETE CASCADE
+);
+
+
+
+
+CREATE table ui_schema (
+widNo INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+schemaID INT NOT NULL,
+widJSON VARCHAR(500) NOT NULL,
+FOREIGN KEY (schemaID) REFERENCES schema_list (schemaID) ON DELETE CASCADE
+);
